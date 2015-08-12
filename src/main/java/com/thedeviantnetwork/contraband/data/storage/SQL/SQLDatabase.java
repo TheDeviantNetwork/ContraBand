@@ -1,6 +1,5 @@
 package com.thedeviantnetwork.contraband.data.storage.SQL;
 
-import com.google.common.base.Optional;
 import com.thedeviantnetwork.contraband.data.*;
 import com.thedeviantnetwork.contraband.data.storage.Database;
 
@@ -19,10 +18,16 @@ public class SQLDatabase extends Database {
 
     private static final String[] INIT = {
             "create table if not exists records(\n" +
+            "  id int NOT NULL AUTO_INCREMENT unique,\n" +
             "  uuid char(36) not null,\n" +
             "  material char(128) not null,\n" +
+            "  level char(128) not null,\n" +
             "  time BIGINT not null,\n" +
-            "  solved bool not null\n" +
+            "  solved bool not null,\n" +
+            "  x int not null,\n" +
+            "  y int not null,\n" +
+            "  z int not null,\n" +
+            "  world char(64) not null\n" +
             ")",
 
             "create table if not exists contraband(\n" +
@@ -54,27 +59,103 @@ public class SQLDatabase extends Database {
     }
 
 
-    private final static String GET_REPORT = "";
+    private Record getRecordFromResultSet(ResultSet resultSet) throws SQLException {
+        return new SQLRecord(
+                this,
+                resultSet.getInt("id"),
+                UUID.fromString(resultSet.getString("UUID")),
+                new Material(resultSet.getString("material")),
+                Level.valueOf(resultSet.getString("level")),
+                resultSet.getBoolean("solved"),
+                resultSet.getLong("time"),
+                resultSet.getInt("x"),
+                resultSet.getInt("y"),
+                resultSet.getInt("z"),
+                resultSet.getString("world")
+        );
+    }
+
+
+    private final static String GET_REPORT = "SELECT * FROM records WHERE uuid=?";
     @Override
-    protected Optional<Report> getReportFromStorage(UUID player) {
+    public List<Record> getRecords(UUID player) {
+        List<Record> recordList = new ArrayList<Record>();
         try {
+            checkConnection();
             PreparedStatement statement = connection.prepareStatement(GET_REPORT);
+            statement.setString(1, player.toString());
+            ResultSet resultSet = statement.executeQuery();
+             while (resultSet.next()){
+                recordList.add(getRecordFromResultSet(resultSet));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+                e.printStackTrace();
         }
-        return Optional.absent();
+        return recordList;
     }
 
+    private static final String ADD_RECORD = "INSERT INTO records " +
+            "(uuid, material, level, time, solved, x, y, z, world)" +
+            " values (?,?,?,?,?,?,?,?,?)";
     @Override
-    protected Map<UUID, Report> getUnSolvedReportsFromStorage() {
-        Map<UUID, Report> reports = new HashMap<UUID, Report>();
-        return reports;
+    protected void addRecordToStorage(Record record) {
+        try {
+            checkConnection();
+            PreparedStatement statement = connection.prepareStatement(ADD_RECORD);
+            statement.setString (1 , record.getUuid().toString());
+            statement.setString (2 , record.getMaterial().toString());
+            statement.setString (3 , record.getLevel().name());
+            statement.setLong(4, record.getTimestamp());
+            statement.setBoolean(5, record.isSolved());
+            statement.setInt(6, record.getX());
+            statement.setInt    (7 , record.getY());
+            statement.setInt    (8 , record.getZ());
+            statement.setString(9, record.getWorldname());
+            statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
+    private static final String UPDATE_RECORD = "UPDATE records SET solved=1 WHERE id=?";
+    void setRecordSolved(int id){
+        try {
+            checkConnection();
+            PreparedStatement statement = connection.prepareStatement(UPDATE_RECORD);
+            statement.setInt(1, id);
+            statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static final String GET_UNSOLVED_REPORTS = "SELECT * FROM records WHERE solved=0";
     @Override
-    public void addRecord(Record report) {
+    protected List<Record> getUnSolvedRecordsFromStorage() {
+        List<Record> records = new ArrayList<Record>();
+        try {
+            checkConnection();
+            ResultSet resultSet = connection.prepareStatement(GET_UNSOLVED_REPORTS).executeQuery();
+            while (resultSet.next()){
+                records.add(getRecordFromResultSet(resultSet));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
+
+        return records;
     }
+
 
     private final static String ADD_CONTRABAND = "insert into contraband values(?, ?, ?) " +
             "ON DUPLICATE KEY UPDATE `level`=?, `time`=?";

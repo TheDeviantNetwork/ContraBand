@@ -3,14 +3,13 @@ package com.thedeviantnetwork.contraband.data.storage.SQL;
 import com.thedeviantnetwork.contraband.data.ContraBand;
 import com.thedeviantnetwork.contraband.data.Level;
 import com.thedeviantnetwork.contraband.data.Material;
-import com.thedeviantnetwork.contraband.data.storage.Database;
-import org.junit.Before;
+import com.thedeviantnetwork.contraband.data.Record;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
-import static org.junit.Assert.*;
 
 public class SQLDatabaseTest {
 
@@ -28,19 +27,28 @@ public class SQLDatabaseTest {
     }
 
     @Test
-    public void testAdd(){
+    public void testAddContraband(){
         database.addContraBand(new ContraBand("hey", (byte) 0, Level.SUSPICIOUS, 8));
         database.addContraBand(new ContraBand("hey", (byte) 2, Level.SUSPICIOUS, 8));
 
     }
 
     @Test
-    public void testRemove(){
-        System.out.println(database.getContraBandFromStorage());
-        System.out.println(database.getContraBandList());
+    public void testRemoveContraBand(){
         database.removeContraBand(new Material("hey", (byte) 0));
-        System.out.println(database.getContraBandFromStorage());
-        System.out.println(database.getContraBandList());
+    }
+
+    @Test
+    public void testAddRecord(){
+       /* database.addRecord(new Record(UUID.fromString("256f866f-0991-44b6-8a53-9bd3004f03b3"), new Material("hey", (byte) 0), Level.SUSPICIOUS, 0,0,0,"world"));
+        for (Record record : database.getUnSolvedRecordsFromStorage())
+            record.setSolved();*/
+
+    }
+
+    @Test
+    public void getRecordsFromPlayer(){
+        System.out.println(database.getRecords(UUID.fromString("256f866f-0991-44b6-8a53-9bd3004f03b3")));
     }
 
 }

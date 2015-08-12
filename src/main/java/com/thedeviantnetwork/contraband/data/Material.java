@@ -38,6 +38,10 @@ public class Material {
         return false;
     }
 
+    public boolean equals(org.bukkit.Material material, byte data){
+        return id.equals(material.name()) && this.data.equals(data);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id,data);
