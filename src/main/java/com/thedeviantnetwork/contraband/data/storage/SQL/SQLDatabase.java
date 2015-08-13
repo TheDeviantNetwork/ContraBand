@@ -1,5 +1,6 @@
 package com.thedeviantnetwork.contraband.data.storage.SQL;
 
+import com.google.common.base.Optional;
 import com.thedeviantnetwork.contraband.data.*;
 import com.thedeviantnetwork.contraband.data.storage.Database;
 
@@ -76,22 +77,33 @@ public class SQLDatabase extends Database {
     }
 
 
-    private final static String GET_REPORT = "SELECT * FROM records WHERE uuid=?";
+    private final static String GET_RECORD_FROM_UUID = "SELECT * FROM records WHERE uuid=?";
     @Override
     public List<Record> getRecords(UUID player) {
+       return getRecordsFromSQL(GET_RECORD_FROM_UUID, player.toString());
+    }
+
+    private static final String GET_RECORD_FROM_ID = "SELECT * FROM records where id=?";
+    @Override
+    public Optional<Record> getRecord(int id) {
+        List<Record> records = getRecordsFromSQL(GET_RECORD_FROM_ID, id);
+        return records.size() != 0 ? Optional.of(records.get(0)) : Optional.<Record>absent();
+    }
+
+    private List<Record> getRecordsFromSQL(String sql, Object parm){
         List<Record> recordList = new ArrayList<Record>();
         try {
             checkConnection();
-            PreparedStatement statement = connection.prepareStatement(GET_REPORT);
-            statement.setString(1, player.toString());
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setObject(1, parm);
             ResultSet resultSet = statement.executeQuery();
-             while (resultSet.next()){
+            while (resultSet.next()){
                 recordList.add(getRecordFromResultSet(resultSet));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            e.printStackTrace();
         }
         return recordList;
     }

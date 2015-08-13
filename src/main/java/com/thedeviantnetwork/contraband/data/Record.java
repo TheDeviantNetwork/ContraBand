@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class Record {
 
+    protected int id;
     private UUID uuid;
     private Material material;
     private Level status;
@@ -18,10 +19,11 @@ public class Record {
     private final String worldname;
 
     public Record(UUID uuid, ContraBand contraBand, int x, int y, int z, String worldname) {
-        this(uuid, contraBand, contraBand.getLevel(), false , System.currentTimeMillis(),x,y,z,worldname);
+        this(0, uuid, contraBand, contraBand.getLevel(), false , System.currentTimeMillis(),x,y,z,worldname);
     }
 
-    public Record(UUID uuid, Material material, Level status, boolean solved, long timestamp, int x, int y, int z, String worldname) {
+    public Record(int id, UUID uuid, Material material, Level status, boolean solved, long timestamp, int x, int y, int z, String worldname) {
+        this.id = id;
         this.uuid = uuid;
         this.material = material;
         this.status = status;
@@ -74,7 +76,7 @@ public class Record {
     }
 
     public String getMessage(){
-        return getLevel().getColor() + Bukkit.getOfflinePlayer(getUuid()).getName() + " Level: " + getLevel() + "Mat: " + getMaterial() + " at: " + new Date(timestamp);
+        return getLevel().getColor() + "id: " + id + " player: " + Bukkit.getOfflinePlayer(getUuid()).getName() + " Level: " + getLevel() + "Mat: " + getMaterial() + " at: " + new Date(timestamp);
     }
 
     @Override
@@ -99,5 +101,9 @@ public class Record {
                 ", z=" + z +
                 ", worldname='" + worldname + '\'' +
                 '}';
+    }
+
+    public int getId() {
+        return id;
     }
 }

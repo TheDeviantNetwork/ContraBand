@@ -1,5 +1,6 @@
 package com.thedeviantnetwork.contraband.data.storage;
 
+import com.google.common.base.Optional;
 import com.thedeviantnetwork.contraband.data.ContraBand;
 import com.thedeviantnetwork.contraband.data.Material;
 import com.thedeviantnetwork.contraband.data.Record;
@@ -51,6 +52,8 @@ public abstract class Database {
     protected abstract List<Record> getUnSolvedRecordsFromStorage();
 
     public abstract List<Record> getRecords(UUID player);
+
+    public abstract Optional<Record> getRecord(int id);
 
     public List<Record> getUnSolvedRecords() {
         return unsolvedRecords;

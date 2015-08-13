@@ -1,9 +1,6 @@
 package com.thedeviantnetwork.contraband.commands;
 
-import com.thedeviantnetwork.contraband.commands.subcommands.CommandAdd;
-import com.thedeviantnetwork.contraband.commands.subcommands.CommandCheck;
-import com.thedeviantnetwork.contraband.commands.subcommands.CommandRemove;
-import com.thedeviantnetwork.contraband.commands.subcommands.Commandlistcontraband;
+import com.thedeviantnetwork.contraband.commands.subcommands.*;
 import com.thedeviantnetwork.contraband.data.storage.Database;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,6 +18,8 @@ public class CommandCB implements CommandExecutor {
         subcommands.put("remove", new CommandRemove(database));
         subcommands.put("listcontraband", new Commandlistcontraband(database));
         subcommands.put("check", new CommandCheck(database));
+        subcommands.put("oke", new CommandOke(database));
+        subcommands.put("tp", null);
     }
 
     @Override
@@ -35,6 +34,8 @@ public class CommandCB implements CommandExecutor {
         commandSender.sendMessage("/cb remove");
         commandSender.sendMessage("/cb listcontraband");
         commandSender.sendMessage("/cb check <playername>");
+        commandSender.sendMessage("/cb oke <reportid|playername>");
+        commandSender.sendMessage("/cb tp <reportid>");
         return false;
     }
 }
